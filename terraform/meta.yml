@@ -1,0 +1,27 @@
+#cloud-config
+users:
+ - name: demin
+   groups: sudo
+   shell: /bin/bash
+   sudo: ['ALL=(ALL) NOPASSWD:ALL']
+   ssh-authorized-keys:
+     - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDKdes9bV53wyCrzj0A/ss1b+WpJPMChO2+LdBztrkVkribBQltEOCKQCIwmFcZJdSbGcp+TyQVzdshwX5EukC1EEbxhJjP+jL0oCZoT6bKaoutDqdgNw3QKu6SKteGRYEL2IGsdEwFZQ8sklRYeNU74r0uZni3+d2wTBiH34r0o3U3Fyowx+vxBiNQ5Fv/d5Iz2XETvLJ+nju9BAjo/DGU9mhPOrf3MZk06m3Q/OZZDJUF2bOVlsE4RJS8LYUH1umr8JwOHE6EETX3gj79eOcKHd31Oe31QV7C2EqxaEpnnQuq7qtYncAAOB/TUAR+9EqQmfHIshzpYneZ/xfBLfV/8ElFZr5MVhM6hP+qgB5dT5EcNcBispTAJuJ8pneJynuI5ljJxvXv9/UG5KELRb47LPIPlloBYmFyg/s0AASGajqdpI2LzyDApQ1+ruYDPgkWB/d90JKUxD4Us0KH32zo8X+xXs4gYamfxchSPnbP0uqznWrmBMqocMKJqJmVmc8= root@DEBIAN-11x64
+
+disable_root: true
+timezone: Europe/Moscow
+repo_update: true
+repo_upgrade: true
+
+packages:
+  - wget
+  - net-tools
+  - htop
+  - apt-transport-https
+  - nano
+  - gnupg
+  - software-properties-common
+  - curl
+
+#runcmd:
+#  - [sh, -c, "echo 'deb [trusted=yes] https://mirror.yandex.ru/mirrors/elastic/7/ stable main' | sudo tee /etc/apt/sources.list.d/elastic-7.x.list"]
+#  - [sh, -c, "apt-get update"]

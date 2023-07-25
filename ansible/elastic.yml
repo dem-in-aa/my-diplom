@@ -1,0 +1,18 @@
+- hosts: elasticsearch
+  become: yes
+  gather_facts: true
+  tasks:
+
+  - name: install elasticsearch
+    ansible.builtin.apt:
+      deb: https://mirror.yandex.ru/mirrors/elastic/7/pool/main/e/elasticsearch/elasticsearch-7.17.9-amd64.deb
+
+  - name: copy elasticsearch config file
+    copy:
+      src: https://github.com/dem-in-aa/my-diplom/blob/main/config/elasticsearch.yml
+      dest: /etc/elasticsearch/elasticsearch.yml
+
+  - name: Make sure a service is running
+    systemd:
+      state: started
+      name: elasticsearch

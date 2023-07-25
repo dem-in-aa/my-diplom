@@ -1,0 +1,5 @@
+- name: add repository
+  apt_repository:
+    repo: "deb https://packages.grafana.com/oss/deb stable main"
+    state: present
+    validate_certs: no

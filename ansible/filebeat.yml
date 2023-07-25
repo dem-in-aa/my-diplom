@@ -1,0 +1,22 @@
+---
+- hosts: web
+  become: yes
+  gather_facts: true
+  tasks:
+
+  - name: Install filebeat.deb
+    ansible.builtin.apt:
+      deb: https://mirror.yandex.ru/mirrors/elastic/7/pool/main/f/filebeat/filebeat-7.17.9-amd64.deb
+
+  - name: copy filebeat config file
+    copy:
+      src: https://github.com/dem-in-aa/my-diplom/raw/main/config/filebeat.yml
+      dest: /etc/filebeat/filebeat.yml
+
+  - name: Make sure a service is running
+    systemd:
+      name: filebeat
+      state: started
+      enabled: yes
+#      masked: no
+

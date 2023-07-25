@@ -1,0 +1,48 @@
+---
+- name: Configure webserver with nginx
+  hosts: web
+  become: True
+  tasks:
+
+    - name: install nginx
+      apt: 
+        name: nginx
+        state: latest
+        update_cache: yes
+
+    - name: copy nginx config file
+      copy: src=nginx-files/nginx.conf dest=/etc/nginx/sites-available/default
+
+    - name: enable configuration
+      file: >
+        dest=/etc/nginx/sites-enabled/default
+        src=/etc/nginx/sites-available/default
+        state=link
+
+    - name: copy index.html
+      template: src=templates/index.html.j2 dest=/var/www/html/index.html mode=0644
+
+    - name: Write text 1
+      shell: echo 'Welcome to web server '$(hostname | cut -d '.' -f 1 ) > /var/www/html/index.html
+
+    - name: Write text 2
+      shell: echo 'Host IP is '$(ip add | grep 10.0. ) >> /var/www/html/index.html
+
+    - name: Check a status 200
+      uri:
+        url: http://localhost
+        status_code: 200
+      register: this
+
+    - debug:
+        msg: '{{ this }}'
+
+  handlers:
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted
+
+
+
+
