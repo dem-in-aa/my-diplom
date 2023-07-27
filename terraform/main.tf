@@ -7,7 +7,7 @@ terraform {
 }
 
 provider "yandex" {
-  token     = "y0_AgAAAABh08c-AATuwQAAAADY0518I0_34uZGQEyNzJqVZCiHvDeusEA" ###### OAuth-token
+  token     = ""                                                           ###### OAuth-token
   cloud_id  = "b1god8fqtrgpq04am4iq"                                       ###### Идентификатор облака (cloud-dem-in-aa)
   folder_id = "b1gvoeoqlur5mogja8je"                                       ###### Идентификатор каталога (default)
   zone      = "ru-central1-b"
