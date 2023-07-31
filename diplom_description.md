@@ -46,7 +46,7 @@ ansible -i hosts.ini all -m ping
 ```
 ![](img/ping.png)
 
-Проверка наличия проблеммных сервисов:
+Проверка наличия проблемных сервисов:
 
 ```
 ansible all -m command -a "systemctl list-units --type service --state failed"
