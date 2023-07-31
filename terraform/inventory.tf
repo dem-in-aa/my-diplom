@@ -24,7 +24,7 @@ resource "local_file" "ansible-inventory" {
     domain="myproject"
     
     [all:vars]
-    ansible_ssh_common_args='-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ProxyCommand="ssh -p 22 -W %h:%p -q demin@${yandex_compute_instance.bastion.network_interface.0.nat_ip_address}"'
+    ansible_ssh_common_args=' -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ProxyCommand="ssh -p 22 -W %h:%p -q demin@${yandex_compute_instance.bastion.network_interface.0.nat_ip_address}"'
     EOT
   filename = "../ansible/hosts.ini"
 }

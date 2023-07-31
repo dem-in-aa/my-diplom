@@ -7,33 +7,11 @@ terraform {
 }
 
 provider "yandex" {
-  token     = "y0_AgAAAABh08c-AATuwQAAAADY0518I0_34uZGQEyNzJqVZCiHvDeusEA" ###### OAuth-token
-  cloud_id  = "b1god8fqtrgpq04am4iq"                                       ###### Идентификатор облака (cloud-dem-in-aa)
-  folder_id = "b1gvoeoqlur5mogja8je"                                       ###### Идентификатор каталога (default)
-  zone      = "ru-central1-b"
+  token     = var.cloud_access_token
+  cloud_id  = var.cloud_access_cloud_id
+  folder_id = var.cloud_access_folder_id
+  zone      = var.zone
 }
-#
-#variable "vars_file" {
-#  description = "/secret.tfvars"
-#  type        = string
-#}
-
-#locals {
-#  my_vars = file(var.vars_file)
-#}
-
-#provider "yandex" {
-#  token     = (/secret.tfvars)["token"]
-#  cloud_id  = (/secret.tfvars)["cloud_id"]
-#  folder_id = (/secret.tfvars)["folder_id"]
-#}
-
-#provider "yandex" {
-#  token     = var.cloud_access_token
-#  cloud_id  = var.cloud_access_cloud_id
-#  folder_id = var.cloud_access_folder_id
-#  zone      = var.zone
-#}
 ########################################### - Webservers - ###########################################################
 
 resource "yandex_compute_instance" "webserver-1" {
@@ -42,20 +20,21 @@ resource "yandex_compute_instance" "webserver-1" {
   zone        = "ru-central1-a"
 
   resources {
-    cores  = 2
-    memory = 2
+    cores  = var.instance_cores
+    memory = var.instance_memory
     core_fraction = 20
   }
 
   boot_disk {
     initialize_params {
-      image_id = "fd8oshj0osht8svg6rfs"
+      image_id = var.boot_disk
+      size     = var.instance_disk_size
     }
   }
 
   network_interface {
     subnet_id          = yandex_vpc_subnet.private-subnet-1.id
-    security_group_ids = [yandex_vpc_security_group.internal-subnets.id]
+    security_group_ids = [yandex_vpc_security_group.ssh.id, yandex_vpc_security_group.webservers.id]
     ip_address         = "10.0.1.3"
   }
 
@@ -75,20 +54,21 @@ resource "yandex_compute_instance" "webserver-2" {
   zone        = "ru-central1-b"
 
   resources {
-    cores  = 2
-    memory = 2
+    cores  = var.instance_cores
+    memory = var.instance_memory
     core_fraction = 20
   }
 
   boot_disk {
     initialize_params {
-      image_id = "fd8oshj0osht8svg6rfs"
+      image_id = var.boot_disk
+      size     = var.instance_disk_size
     }
   }
 
   network_interface {
     subnet_id          = yandex_vpc_subnet.private-subnet-2.id
-    security_group_ids = [yandex_vpc_security_group.internal-subnets.id]
+    security_group_ids = [yandex_vpc_security_group.ssh.id, yandex_vpc_security_group.webservers.id]
     ip_address         = "10.0.2.3"
   }
 
@@ -116,14 +96,14 @@ resource "yandex_compute_instance" "bastion" {
 
   boot_disk {
     initialize_params {
-      image_id = "fd8oshj0osht8svg6rfs" 
+      image_id = var.boot_disk 
     }
   }
 
   network_interface {
     subnet_id          = yandex_vpc_subnet.public-subnet.id
     nat                = true
-    security_group_ids = [yandex_vpc_security_group.internal-subnets.id, yandex_vpc_security_group.public-bastion.id]
+    security_group_ids = [yandex_vpc_security_group.ssh.id, yandex_vpc_security_group.public-bastion.id]
     ip_address         = "10.0.3.5"
   }
 
@@ -136,7 +116,6 @@ resource "yandex_compute_instance" "bastion" {
   }
 }
 
-
 ############################# - prometheus - ########################################
 
 resource "yandex_compute_instance" "prometheus" {
@@ -145,20 +124,21 @@ resource "yandex_compute_instance" "prometheus" {
   zone        = "ru-central1-b"
 
   resources {
-    cores  = 2
-    memory = 4
+    cores  = var.instance_cores
+    memory = var.instance_memory
     core_fraction = 20
   }
 
   boot_disk {
     initialize_params {
-      image_id = "fd8oshj0osht8svg6rfs"
+      image_id = var.boot_disk
+      size     = var.instance_disk_size
     }
   }
 
   network_interface {
     subnet_id          = yandex_vpc_subnet.private-subnet-2.id
-    security_group_ids = [yandex_vpc_security_group.internal-subnets.id]
+    security_group_ids = [yandex_vpc_security_group.ssh.id, yandex_vpc_security_group.prometheus.id]
     ip_address         = "10.0.2.5"
   }
 
@@ -179,21 +159,22 @@ resource "yandex_compute_instance" "grafana" {
   zone        = "ru-central1-c"
 
   resources {
-    cores  = 2
-    memory = 2
+    cores  = var.instance_cores
+    memory = var.instance_memory
     core_fraction = 20
   }
 
   boot_disk {
     initialize_params {
-      image_id = "fd8oshj0osht8svg6rfs"
+      image_id = var.boot_disk
+      size     = var.instance_disk_size
     }
   }
 
   network_interface {
     subnet_id          = yandex_vpc_subnet.public-subnet.id
     nat                = true
-    security_group_ids = [yandex_vpc_security_group.internal-subnets.id, yandex_vpc_security_group.public-grafana.id]
+    security_group_ids = [yandex_vpc_security_group.ssh.id, yandex_vpc_security_group.public-grafana.id]
     ip_address         = "10.0.3.3"
   }
 
@@ -214,23 +195,22 @@ resource "yandex_compute_instance" "elasticsearch" {
   zone        = "ru-central1-b"
 
   resources {
-    cores  = 2
-    memory = 8
+    cores  = var.instance_cores
+    memory = var.instance_elastic_memory
     core_fraction = 20
   }
 
   boot_disk {
     initialize_params {
-      image_id = "fd8oshj0osht8svg6rfs"  #debian11
-     # image_id = "fd8tf1sepeiku6d37l4l" #ubuntu
-      size     = 10
+      image_id = var.boot_disk
+      size     = var.instance_disk_size
       type     = "network-ssd"
     }
   }
 
   network_interface {
     subnet_id          = yandex_vpc_subnet.private-subnet-2.id
-    security_group_ids = [yandex_vpc_security_group.internal-subnets.id]
+    security_group_ids = [yandex_vpc_security_group.ssh.id, yandex_vpc_security_group.elastic.id]
     ip_address         = "10.0.2.4"
   }
 
@@ -251,21 +231,22 @@ resource "yandex_compute_instance" "kibana" {
   zone        = "ru-central1-c"
 
   resources {
-    cores  = 2
-    memory = 2
+    cores  = var.instance_cores
+    memory = var.instance_memory
     core_fraction = 20
   }
 
   boot_disk {
     initialize_params {
-      image_id = "fd8oshj0osht8svg6rfs"
+      image_id = var.boot_disk
+      size     = var.instance_disk_size
     }
   }
 
   network_interface {
     subnet_id          = yandex_vpc_subnet.public-subnet.id
     nat                = true
-    security_group_ids = [yandex_vpc_security_group.internal-subnets.id, yandex_vpc_security_group.public-kibana.id]
+    security_group_ids = [yandex_vpc_security_group.ssh.id, yandex_vpc_security_group.public-kibana.id]
     ip_address         = "10.0.3.4"
   }
 

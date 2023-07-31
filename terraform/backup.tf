@@ -7,7 +7,7 @@ resource "yandex_compute_snapshot_schedule" "default" {
 
   retention_period = "168h"
 
-  snapshot_count = 1
+  snapshot_count = 7
 
   snapshot_spec {
     description = "daily"

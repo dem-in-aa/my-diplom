@@ -1,4 +1,4 @@
-############################################ - security_groups - ##########################################################
+############################################ - security_group - ##########################################################
 
 ### bastion host ###
 
@@ -11,12 +11,19 @@ resource "yandex_vpc_security_group" "public-bastion" {
     port           = 22
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
+}
 
-#  ingress {
-#    protocol       = "ICMP"
-#    description    = "allow ping"
-#    v4_cidr_blocks = ["0.0.0.0/0"]
-#  }
+### Security group to allow incoming ssh traffic ###
+
+resource "yandex_vpc_security_group" "ssh" {
+  name             = "My security group ssh traffic"
+  network_id       = yandex_vpc_network.network.id
+
+  ingress {
+    protocol       = "TCP"
+    port           = 22
+    v4_cidr_blocks = var.instance_v4_cidr_blocks   
+  }
 
   egress {
     protocol       = "ANY"
@@ -26,74 +33,34 @@ resource "yandex_vpc_security_group" "public-bastion" {
   }
 }
 
-### Internal subnets ###
+### Security group webservers ###
 
-resource "yandex_vpc_security_group" "internal-subnets" {
-  name             = "My internal security group"
+resource "yandex_vpc_security_group" "webservers" {
+  name             = "My security group webservers"
   network_id       = yandex_vpc_network.network.id
 
-#  ingress {
-#    protocol       = "TCP"
-#    description    = "ssh connections from bastion" 
-#    port           = 22
-#    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-#  }
-#
-#  ingress {
-#    protocol       = "ICMP"
-#    description    = "ping from bastion"
-#    from_port      = 0
-#    to_port        = 65535
-#    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-#  }
-#
-#  ingress {
-#    protocol       = "TCP"
-#    description    = "internal http from loadbalancer to webservers"
-#    port           = 80
-#    predefined_target = "loadbalancer_healthchecks"
-#  }
-#
-#  ingress {
-#    protocol       = "TCP"
-#    description    = " "
-#    port           = 4040
-#    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-#  }
-#
-#  ingress {
-#    protocol       = "TCP"
-#    description    = "prometheus"
-#    port           = 9090
-#    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"] 
-#  }
-#
-#  ingress {
-#    protocol       = "TCP"
-#    description    = "alert manager"
-#    port           = 9093
-#    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-#  }
-#
-#  ingress {
-#    protocol       = "TCP"
-#    description    = "elasticsearch"
-#    port           = 9200
-#    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-#  }
+  dynamic "ingress" {
+    for_each       = ["80", "4040", "8080","9100"]
+    content {
+    protocol       = "TCP" 
+    from_port      = ingress.value
+    to_port        = ingress.value
+    v4_cidr_blocks = var.instance_v4_cidr_blocks
+  }
+ }
+}
+
+## Security group prometheus ###
+
+resource "yandex_vpc_security_group" "prometheus" {
+  name             = "My security group prometheus"
+  network_id       = yandex_vpc_network.network.id
 
   ingress {
-    protocol       = "ANY"
-    description    = "allow any connection from internal subnets"
-    v4_cidr_blocks = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
-  }
-
-
-  egress {
-    protocol       = "ANY"
-    from_port      = 0
-    to_port        = 65535
-    v4_cidr_blocks = ["0.0.0.0/0"]
+    protocol       = "TCP"
+    from_port      = 9090
+    to_port        = 9094
+    v4_cidr_blocks = var.instance_v4_cidr_blocks
   }
 }
 
@@ -108,12 +75,19 @@ resource "yandex_vpc_security_group" "public-grafana" {
     port           = 3000
     v4_cidr_blocks = ["0.0.0.0/0"]
   }
+}
 
-  egress {
-    protocol       = "ANY"
-    v4_cidr_blocks = ["0.0.0.0/0"]
-    from_port      = 0
-    to_port        = 65535
+### Security group elasticsearch ###
+
+resource "yandex_vpc_security_group" "elastic" {
+  name             = "My security group elasticsearch"
+  network_id       = yandex_vpc_network.network.id
+
+  ingress {
+    protocol       = "TCP"
+    from_port      = 9200
+    to_port        = 9400
+    v4_cidr_blocks = var.instance_v4_cidr_blocks
   }
 }
 
@@ -127,13 +101,6 @@ resource "yandex_vpc_security_group" "public-kibana" {
     protocol       = "TCP"
     port           = 5601
     v4_cidr_blocks = ["0.0.0.0/0"]
-  }
-
-egress {
-    protocol       = "ANY"
-    v4_cidr_blocks = ["0.0.0.0/0"]
-    from_port      = 0
-    to_port        = 65535
   }
 }
 

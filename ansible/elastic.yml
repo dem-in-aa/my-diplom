@@ -9,10 +9,12 @@
 
   - name: copy elasticsearch config file
     copy:
-      src: https://github.com/dem-in-aa/my-diplom/blob/main/config/elasticsearch.yml
+      src: ../config/elasticsearch.yml
       dest: /etc/elasticsearch/elasticsearch.yml
 
   - name: Make sure a service is running
     systemd:
+      daemon_reload: yes
+      enabled: yes
       state: started
       name: elasticsearch

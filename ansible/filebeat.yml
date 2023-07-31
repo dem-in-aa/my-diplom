@@ -10,7 +10,7 @@
 
   - name: copy filebeat config file
     copy:
-      src: https://github.com/dem-in-aa/my-diplom/raw/main/config/filebeat.yml
+      src: ../config/filebeat.yml
       dest: /etc/filebeat/filebeat.yml
 
   - name: Make sure a service is running
@@ -18,5 +18,4 @@
       name: filebeat
       state: started
       enabled: yes
-#      masked: no
 

@@ -14,16 +14,16 @@
         enable: false
       namespaces:
         - name: nginx
-          format: "$remote_addr - $remote_user [$time_local] \"$request\" $status $body_bytes_sent \"$http_referer\" \"$http_user_agent\" \"$http_x_forwarded_for\"" 
+          format: "$remote_addr - $remote_user [$time_local] \"$request\" $status $body_bytes_sent \"$http_referer\" \"$http_user_agent\" \"$http_x_forwarded_for\""
           source:
             files:
               - "/var/log/nginx/access.log"
-          histogram_buckets: [.005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5, 10] 
+          histogram_buckets: [.005, .01, .025, .05, .1, .25, .5, 1, 2.5, 5, 10]
 
   tasks:
     - name: "Add nginxlog-exp user to adm group for the logs reading rights"
       user:
-        name: "{{ nginxlog_exporter_user }}" 
+        name: "{{ nginxlog_exporter_user }}"
         state: present
         groups: adm
         append: yes

@@ -1,56 +1,7 @@
 
-#variable "subnet_cidr_blocks" {
-#  description = "Список CIDR-блоков для каждой сетевой зоны"
-#  type        = list(string)
-#  default     = [
-#    "10.0.1.0/24",
-#    "10.0.2.0/24",
-#    "10.0.3.0/24"
-#  ]
-#}
-
-#variable "subnets" {
-#  type = map(object({
-#    cidr_block = string
-#    zone       = string
-#  }))
-#  default = {
-#    private-subnet-1 = {
-#      cidr_block = "10.0.1.0/24"
-#      zone       = "ru-central1-a"
-#    }
-#    private-subnet-2 = {
-#      cidr_block = "10.0.2.0/24"
-#      zone       = "ru-central1-b"
-#    }
-#    public-subnet = {
-#      cidr_block = "10.0.3.0/24"
-#      zone       = "ru-central1-c"
-#    }
-#  }
-#}
-
 resource "yandex_vpc_network" "network" {
   name = "my-network"
 }
-
-#resource "yandex_vpc_subnet" "subnets" {
-#  count = length(var.subnets)
-  
-#  for_each = var.subnets
-#  
-#  name          = each.key
-#  network_id    = yandex_vpc_network.network.id
-#  zone          = each.value.zone
-#  v4_cidr_block = each.value.cidr_block
-#}
-
-#resource "yandex_vpc_subnet" "subnet" {
-#  count         = length(var.network_interfaces)
-#  name          = "example-subnet-${count.index + 1}"
-#  network_id    = yandex_vpc_network.network.id
-#  v4_cidr_blocks = ["10.0.${count.index}.0/24"]
-#}
 
 resource "yandex_vpc_gateway" "nat_gateway" {
   name = "my-gateway"
@@ -62,7 +13,7 @@ resource "yandex_vpc_route_table" "internal-to-nat" {
 
   static_route {
     destination_prefix = "0.0.0.0/0"
-    gateway_id         = yandex_vpc_gateway.nat_gateway.id
+   gateway_id         = yandex_vpc_gateway.nat_gateway.id
    # next_hop_address   = yandex_compute_instance.bastion.network_interface.0.ip_address
   }
 }
@@ -71,8 +22,7 @@ resource "yandex_vpc_subnet" "private-subnet-1" {
   name           = "private-subnet1"
   zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.network.id
- v4_cidr_blocks = ["10.0.1.0/24"]
-#  v4_cidr_blocks = [var.subnet_cidr_blocks[0]]
+  v4_cidr_blocks = ["10.0.1.0/24"]
   route_table_id = yandex_vpc_route_table.internal-to-nat.id
 }
 
@@ -81,7 +31,6 @@ resource "yandex_vpc_subnet" "private-subnet-2" {
   zone           = "ru-central1-b"
   network_id     = yandex_vpc_network.network.id
   v4_cidr_blocks = ["10.0.2.0/24"]
-#  v4_cidr_blocks = [var.subnet_cidr_blocks[1]]
   route_table_id = yandex_vpc_route_table.internal-to-nat.id
 }
 
@@ -90,7 +39,6 @@ resource "yandex_vpc_subnet" "public-subnet" {
   zone           = "ru-central1-c"
   network_id     = yandex_vpc_network.network.id
   v4_cidr_blocks = ["10.0.3.0/24"]
-#  v4_cidr_blocks = [var.subnet_cidr_blocks[2]]
 }
 
 ############################################## - target_group - ##########################################################

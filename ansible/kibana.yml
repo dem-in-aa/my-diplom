@@ -1,21 +1,20 @@
----
 - hosts: kibana
   become: yes
   gather_facts: true
   tasks:
 
-  - name: Install kibana.deb
-    ansible.builtin.apt:
-      deb: https://mirror.yandex.ru/mirrors/elastic/7/pool/main/k/kibana/kibana-7.17.9-amd64.deb
+  - name: install kibana
+    apt:
+      deb: "https://mirror.yandex.ru/mirrors/elastic/7/pool/main/k/kibana/kibana-7.17.9-amd64.deb"
 
-  - name: copy filebeat config file
+  - name: copy kibana config file
     copy:
-      src: https://github.com/dem-in-aa/my-diplom/raw/main/config/kibana.yml
+      src: ../config/kibana.yml
       dest: /etc/kibana/kibana.yml
 
   - name: Make sure a service is running
     systemd:
-      name: filebeat
+      daemon_reload: yes
+      enabled: yes
       state: started
-#      enabled: yes
-#      masked: no
+      name: kibana
