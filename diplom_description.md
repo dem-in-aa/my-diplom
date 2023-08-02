@@ -82,11 +82,11 @@ ansible all -m command -a "systemctl list-units --type service --state failed"
 На веб-серверах установлены сервисы:
 
 а) Nginx
----
+
 б) Node Exporter
----
+
 в) Nginx Log Exporter
----
+
 г) Filebeat
 
 Проверка состояния сервисов:
