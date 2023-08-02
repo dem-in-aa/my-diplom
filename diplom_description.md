@@ -82,8 +82,11 @@ ansible all -m command -a "systemctl list-units --type service --state failed"
 На веб-серверах установлены сервисы:
 
 а) Nginx
+---
 б) Node Exporter
+---
 в) Nginx Log Exporter
+---
 г) Filebeat
 
 Проверка состояния сервисов:
@@ -130,8 +133,11 @@ ansible prometheus -m command -a "systemctl list-units --type service --state ru
 Проверка работоспособности сайта **grafana**, состояние **dashboards**
 
 ![](img/dash1.png)
-
+---
 ![](img/dash2.png)
+---
+![](img/dash3.png)
+
 
 Примечание: экспорт состояния дашбордов сохранен в **config/dashboards.json**
 Логин и пароль к сайту оставлены по-умолчанию (admin:admin)

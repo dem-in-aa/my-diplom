@@ -1,48 +1,58 @@
 ---
 - name: Configure webserver with nginx
   hosts: web
-  become: True
+  become: true
   tasks:
 
-    - name: install nginx
-      apt: 
+    - name: "install nginx"
+      apt:
         name: nginx
         state: latest
         update_cache: yes
 
-    - name: copy nginx config file
-      copy: src=../config/nginx.conf dest=/etc/nginx/sites-available/default
+    - name: delete default nginx site
+      file:
+        path: /etc/nginx/sites-enabled/default
+        state: absent
+      notify: restart nginx
 
-    - name: enable configuration
-      file: >
-        dest=/etc/nginx/sites-enabled/default
-        src=/etc/nginx/sites-available/default
-        state=link
+    - name: "copy config file"
+      copy:
+        src: ../config/nginx.conf
+        dest: /etc/nginx/
+      notify: restart nginx
 
-    - name: copy index.html
-      template: src=../config/index.html.j2 dest=/var/www/html/index.html mode=0644
+    - name: copy nginx site.conf
+      ansible.builtin.template:
+        src: ../config/site.conf.j2
+        dest: /etc/nginx/sites-enabled/
+        owner: root
+        group: root
+        mode: '0644'
+      notify: restart nginx
 
-    - name: Write text 1
-      shell: echo 'Welcome to web server '$(hostname | cut -d '.' -f 1 ) > /var/www/html/index.html
+    - name: "copy website"
+      copy:
+        src: ../config/index.html.j2
+        dest: /var/www/html/index.html
 
-    - name: Write text 2
-      shell: echo 'Host IP is '$(ip add | grep 10.0. ) >> /var/www/html/index.html
-
-    - name: Check a status 200
+    - name: Check a status
       uri:
         url: http://localhost
         status_code: 200
-      register: this
+        timeout: 30
+      register: result
+      failed_when: result.status != 200
 
-    - debug:
-        msg: '{{ this }}'
+    - name: Wait for the website to be available
+      wait_for:
+        host: localhost
+        port: 80
+        delay: 5
+        timeout: 60
 
   handlers:
     - name: restart nginx
       service:
         name: nginx
         state: restarted
-
-
-
-
