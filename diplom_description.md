@@ -130,6 +130,10 @@ ansible prometheus -m command -a "systemctl list-units --type service --state ru
 
 ![](img/prom.png)
 
+Конфиг-файл **prometheus**:
+
+![](img/prom_config.png)
+
 Проверка работоспособности сайта **grafana**, состояние **dashboards**
 
 ![](img/dash1.png)
